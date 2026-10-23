@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# local tooling and test artefacts
+.netlify/
+test-results/
+playwright-report/
+tmp/
+*.log
+.DS_Store
+Thumbs.db
+
+# environment files (AgentLab needs none, but never commit them)
+.env
+.env.*
+!.env.example
