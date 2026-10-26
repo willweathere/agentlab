@@ -119,8 +119,6 @@
     font-size: 12px;
     letter-spacing: -0.01em;
     font-variant-numeric: tabular-nums;
-    /* Slashed zero, so ids like O1 never read as 01. */
-    font-feature-settings: 'zero' 1;
   }
 
   /* Buttons */
@@ -277,7 +275,6 @@
   }
   .field-mono {
     font-family: var(--font-mono);
-    font-feature-settings: 'zero' 1;
     font-size: 12px;
     line-height: 1.6;
   }
@@ -364,6 +361,13 @@
     -webkit-backdrop-filter: blur(14px) saturate(1.2);
     border: 1px solid var(--color-line-strong);
   }
+  .stmt-id {
+    font-family: var(--font-sans);
+    font-weight: 620;
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-3);
+  }
   .kbd {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -378,8 +382,10 @@
     height: 1.25rem;
     padding: 0 0.375rem;
     border-radius: 6px;
-    font-family: var(--font-mono);
-    font-feature-settings: 'zero' 1;
+    /* Ids use the sans face: in Geist Mono, O1 and 01 look identical. */
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
     font-size: 11px;
     color: var(--color-ink-2);
     background: var(--color-slab-2);
@@ -435,6 +441,19 @@
   }
   .agent-card:hover {
     border-color: oklch(1 0 0 / 0.2);
+  }
+  .card-hit {
+    outline: none;
+  }
+  .card-hit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+  }
+  .agent-card:has(.card-hit:focus-visible) {
+    outline: 2px solid var(--color-selected);
+    outline-offset: 3px;
   }
   .agent-card[data-selected='true'] {
     border-color: oklch(0.7 0.17 252 / 0.9);

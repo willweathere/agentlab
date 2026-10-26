@@ -1,1 +1,4 @@
-/*    /index.html   200
+# Missing build files get a real 404 instead of the app shell.
+/assets/*  /404.html  404
+# Everything else is a client route.
+/*         /index.html  200

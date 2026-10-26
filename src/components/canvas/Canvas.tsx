@@ -16,6 +16,9 @@ function useSize<T extends HTMLElement>() {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Measure before the first paint so the graph is never drawn at the wrong scale.
+    const r = el.getBoundingClientRect();
+    setSize({ w: r.width, h: r.height });
     const ro = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
       setSize((s) => (Math.abs(s.w - width) < 1 && Math.abs(s.h - height) < 1 ? s : { w: width, h: height }));
@@ -61,8 +64,10 @@ export function Canvas() {
   // Refit when the graph changes shape, and on resize until the person pans or zooms.
   const shapeKey = `${ids.length}:${orientation}`;
   const lastShape = useRef('');
-  useEffect(() => {
+  const [fitted, setFitted] = useState(false);
+  useLayoutEffect(() => {
     if (!size.w) return;
+    setFitted(true);
     if (lastShape.current !== shapeKey) {
       fit(lastShape.current !== '');
       lastShape.current = shapeKey;
@@ -197,7 +202,7 @@ export function Canvas() {
         onKeyDown={onKeyDown}
       >
         <div className="canvas-light pointer-events-none absolute inset-0" aria-hidden="true" />
-        {n > 0 && (
+        {n > 0 && fitted && (
           <div
             className="absolute left-0 top-0 origin-top-left"
             style={{

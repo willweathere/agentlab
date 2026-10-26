@@ -4,6 +4,7 @@ import { Link, Route, Switch } from 'wouter';
 import { MobileBar } from './components/shell/MobileBar';
 import { Sidebar } from './components/shell/Sidebar';
 import { ConfirmProvider } from './components/ui/Confirm';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { Toasts } from './components/ui/Toasts';
 import { EmptyState, PageShell } from './pages/PageShell';
 import WorkspacePage from './pages/WorkspacePage';
@@ -66,17 +67,19 @@ export default function App() {
         <main id="main" tabIndex={-1} className="flex min-w-0 flex-1 flex-col outline-none">
           <MobileBar />
           <StorageNotices />
-          <Suspense fallback={<Loading />}>
-            <Switch>
-              <Route path="/" component={WorkspacePage} />
-              <Route path="/templates" component={TemplatesPage} />
-              <Route path="/history" component={HistoryPage} />
-              <Route path="/runs/:id" component={RunPage} />
-              <Route path="/settings" component={SettingsPage} />
-              <Route path="/about" component={AboutPage} />
-              <Route component={NotFound} />
-            </Switch>
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={<Loading />}>
+              <Switch>
+                <Route path="/" component={WorkspacePage} />
+                <Route path="/templates" component={TemplatesPage} />
+                <Route path="/history" component={HistoryPage} />
+                <Route path="/runs/:id" component={RunPage} />
+                <Route path="/settings" component={SettingsPage} />
+                <Route path="/about" component={AboutPage} />
+                <Route component={NotFound} />
+              </Switch>
+            </Suspense>
+          </ErrorBoundary>
         </main>
       </div>
       <Toasts />

@@ -1,5 +1,5 @@
 import { CircleAlert, FileText } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { INPUT_LABELS, ROLE_SPECS } from '../../engine/contracts';
 import type { AgentConfig, PayloadType, RunRecord, StageRecord, ValidationIssue, WorkflowInput } from '../../engine/types';
 import { INPUT_ICONS, RoleChip } from '../ui/icons';
@@ -47,19 +47,21 @@ export function AgentCard({
   const inLabel = spec.consumes.map((c) => SHORT[c]).join(' + ');
   const outLabel = shortOutput(stage) ?? SHORT[spec.produces];
   const message = stage?.error ?? stage?.warnings[0];
+  const descId = useId();
 
+  // The card is a container; its name is a button stretched over the whole card, so the
+  // accessible name is exactly the visible name and the rest reads as its description.
   return (
-    <button
-      type="button"
+    <div
       data-node={agent.id}
       className={`agent-card role-${agent.role} group`}
       data-status={status === 'idle' ? undefined : status}
       data-selected={selected}
-      aria-pressed={selected}
-      aria-label={`${agent.name}. ${spec.label}, stage ${index + 1} of ${count}. ${s.label}.${errors.length ? ` ${errors.length} configuration ${errors.length === 1 ? 'problem' : 'problems'}.` : ''}`}
       style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
-      onClick={onSelect}
     >
+      <span id={descId} className="sr-only">
+        {`${spec.label}, stage ${index + 1} of ${count}. ${s.label}.${errors.length ? ` ${errors.length} configuration ${errors.length === 1 ? 'problem' : 'problems'}.` : ''}`}
+      </span>
       <div className="flex items-start gap-3 px-4 pt-4">
         <RoleChip role={agent.role} />
         <div className="min-w-0 flex-1">
@@ -70,7 +72,15 @@ export function AgentCard({
             </span>
             <StatusPill label={s.label} tone={s.tone} live={s.live} />
           </div>
-          <div className="mt-1 truncate text-[15.5px] font-[620] leading-snug text-ink">{agent.name || 'Unnamed agent'}</div>
+          <button
+            type="button"
+            className="card-hit mt-1 block w-full truncate text-left text-[15.5px] font-[620] leading-snug text-ink"
+            aria-pressed={selected}
+            aria-describedby={descId}
+            onClick={onSelect}
+          >
+            {agent.name || 'Unnamed agent'}
+          </button>
         </div>
       </div>
       <p
@@ -85,12 +95,12 @@ export function AgentCard({
         <dd className={`truncate ${stage?.output ? 'text-ink' : 'text-ink-2'}`}>{outLabel}</dd>
       </dl>
       {errors.length > 0 && (
-        <span className="absolute -right-2 -top-2 grid size-6 place-items-center rounded-full border border-[oklch(0.7_0.19_25/0.5)] bg-[oklch(0.3_0.08_25)] text-[oklch(0.9_0.08_25)]" aria-hidden="true">
+        <span className="pointer-events-none absolute -right-2 -top-2 grid size-6 place-items-center rounded-full border border-[oklch(0.7_0.19_25/0.5)] bg-[oklch(0.3_0.08_25)] text-[oklch(0.9_0.08_25)]" aria-hidden="true">
           <CircleAlert size={14} />
         </span>
       )}
       <Ports orientation={orientation} />
-    </button>
+    </div>
   );
 }
 
@@ -105,7 +115,7 @@ function Terminal({
   title,
   caption,
   captionTone,
-  ariaLabel,
+  description,
   onSelect,
   inPort,
   outPort,
@@ -119,19 +129,20 @@ function Terminal({
   title: string;
   caption: string;
   captionTone?: Tone;
-  ariaLabel: string;
+  description: string;
   onSelect: () => void;
   inPort: boolean;
   outPort: boolean;
 }) {
   const horizontal = orientation === 'horizontal';
   const width = horizontal ? 148 : 230;
+  const descId = useId();
   return (
     <button
       type="button"
       data-node={node}
       aria-pressed={selected}
-      aria-label={ariaLabel}
+      aria-describedby={descId}
       onClick={onSelect}
       className={`terminal group absolute flex rounded-2xl text-left outline-offset-4 ${horizontal ? 'flex-col items-center' : 'flex-row items-center gap-3'}`}
       style={horizontal ? { left: box.x + box.w / 2 - width / 2, top: box.y, width } : { left: box.x, top: box.y, width }}
@@ -143,6 +154,9 @@ function Terminal({
       <span className={`block min-w-0 ${horizontal ? 'mt-2.5 text-center' : ''}`}>
         <span className="block text-[13px] font-[620] leading-tight text-ink">{title}</span>
         <span className={`mt-0.5 block truncate t-mono text-[11px] ${captionTone ? `terminal-caption-${captionTone}` : 'text-ink-3'}`}>{caption}</span>
+      </span>
+      <span id={descId} className="sr-only">
+        {description}
       </span>
     </button>
   );
@@ -163,7 +177,7 @@ export function InputNode({ input, box, orientation, selected, hasError, onSelec
       title={labels.kind}
       caption={caption}
       captionTone={hasError ? 'warning' : undefined}
-      ariaLabel={`Workflow input: ${labels.kind}, ${caption}. Select to edit.`}
+      description="Workflow input. Select to edit."
       onSelect={onSelect}
       inPort={false}
       outPort
@@ -186,7 +200,7 @@ export function ReportNode({ run, box, orientation, selected, onSelect }: { run:
       title="Report"
       caption={state.label}
       captionTone={tone}
-      ariaLabel={`Report: ${state.label}. ${state.detail}`}
+      description={`Report. ${state.detail}`}
       onSelect={onSelect}
       inPort
       outPort={false}

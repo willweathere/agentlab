@@ -57,7 +57,7 @@ def header_status(page: Page) -> str:
 
 
 def agent_cards(page: Page):
-    return page.locator("button.agent-card")
+    return page.locator(".agent-card")
 
 
 def discard_if_asked(page: Page):

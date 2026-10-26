@@ -107,7 +107,8 @@ export function ExecutionDrawer() {
 
 function RunBody({ run, stale, reviews, onSelect }: { run: RunRecord; stale: boolean; reviews: Review[]; onSelect: (agentId: string) => void }) {
   const problems = run.stages.flatMap((s) => [
-    ...(s.error ? [{ tone: 'error' as const, stage: s.agentName, text: s.error }] : []),
+    // A failed review is described by its checks below, so its summary isn't repeated here.
+    ...(s.error && s.output?.type !== 'review' ? [{ tone: 'error' as const, stage: s.agentName, text: s.error }] : []),
     ...s.warnings.map((w) => ({ tone: 'warning' as const, stage: s.agentName, text: w })),
   ]);
   const checks = reviews.flatMap((r) => r.checks.filter((c) => c.status !== 'pass').map((c) => ({ r, c })));
