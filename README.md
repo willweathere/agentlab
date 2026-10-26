@@ -74,7 +74,7 @@ The interface only hands the engine a workflow definition and listens to the eve
 
 ### Why not React Flow
 
-I evaluated React Flow (v12, `@xyflow/react`). It handles read-only graphs well, with `nodesConnectable={false}`, `fitView` and keyboard-focusable nodes. But its main strengths are free node positioning and user-drawn connections, and AgentLab deliberately has neither: v1 is strictly sequential, and the graph must equal the definition. A small custom canvas (pan, wheel and pinch zoom, fit-to-view, about 250 lines) gives full control over the connection rendering that carries the run state, keeps the bundle smaller, and leaves no way to draw a connection the engine would ignore.
+I evaluated React Flow (v12, `@xyflow/react`). It handles read-only graphs well, with `nodesConnectable={false}`, `fitView` and keyboard-focusable nodes. But its main strengths are free node positioning and user-drawn connections, and AgentLab deliberately has neither: v1 is strictly sequential, and the graph must equal the definition. A small custom canvas (pan, wheel and pinch zoom, fit-to-view and layout, about 500 lines) gives full control over the connection rendering that carries the run state, keeps the bundle smaller, and leaves no way to draw a connection the engine would ignore.
 
 ## Execution model
 
