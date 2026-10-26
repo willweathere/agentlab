@@ -49,7 +49,7 @@ export default function AboutPage() {
       title="About AgentLab"
       lead="AgentLab is a workflow engine with deterministic processing, for experimenting with agent-style workflows. You chain specialised agents, run them in order, and inspect exactly what each one received and produced."
     >
-      <div className="max-w-[760px] space-y-10">
+      <div className="max-w-[640px] space-y-10">
         <Part title="What it is, and what it isn’t">
           <p>
             Version 1 calls no AI model. Every agent is TypeScript running in your browser with explicit, readable rules, so the same input always produces the same output. The point is the workflow itself: orchestration, structured

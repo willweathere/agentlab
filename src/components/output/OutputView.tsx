@@ -37,7 +37,7 @@ export function StatementList({ items, linkFacts, showPriority }: { items: State
     <ul className="space-y-2">
       {items.map((s) => (
         <li key={s.id} className="flex gap-2.5 text-[13.5px] leading-relaxed">
-          <span className="t-mono mt-[3px] w-7 flex-none text-[11px] text-ink-3">{s.id}</span>
+          <span className="t-mono mt-[3px] w-8 flex-none text-[11px] text-ink-3">{s.id}</span>
           <span className="min-w-0">
             {showPriority && s.priority && (
               <span className={`pill mr-1.5 align-middle ${s.priority === 'high' ? 'tone-error' : s.priority === 'medium' ? 'tone-warning' : 'tone-muted'}`}>

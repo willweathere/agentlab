@@ -19,6 +19,8 @@ export interface EdgeGeom {
   key: string;
   /** Index of the target node in the node list (1..n). */
   target: number;
+  /** True when both ends are agents; only these edges carry a payload label. */
+  between: boolean;
   x1: number;
   y1: number;
   x2: number;
@@ -28,30 +30,36 @@ export interface EdgeGeom {
   length: number;
 }
 
-export const AGENT_W = 280;
-export const AGENT_H = 188;
-export const IO_W = 212;
-export const IO_H = 156;
-const GAP_H = 120;
-const GAP_V = 76;
+export const AGENT_W = 252;
+export const AGENT_H = 178;
+/** Input and Report are round terminals; their captions sit outside the circle. */
+export const TERMINAL = 60;
+
+const GAP = {
+  horizontal: { terminal: 76, agent: 108 },
+  vertical: { terminal: 64, agent: 84 },
+};
+
+/** Extra room the terminal captions need beyond the circles, so fit-to-view keeps them visible. */
+const CAPTION = { horizontal: { x: 40, y: 64 }, vertical: { x: 150, y: 0 } };
 
 export function computeLayout(agentIds: string[], orientation: Orientation) {
   const nodes: NodeBox[] = [];
   const items = [
-    { key: 'input', kind: 'input' as const, index: -1, w: IO_W, h: IO_H },
+    { key: 'input', kind: 'input' as const, index: -1, w: TERMINAL, h: TERMINAL },
     ...agentIds.map((id, i) => ({ key: id, kind: 'agent' as const, index: i, w: AGENT_W, h: AGENT_H })),
-    { key: 'report', kind: 'report' as const, index: -1, w: IO_W, h: IO_H },
+    { key: 'report', kind: 'report' as const, index: -1, w: TERMINAL, h: TERMINAL },
   ];
+  const gaps = GAP[orientation];
   let cursor = 0;
-  for (const it of items) {
-    if (orientation === 'horizontal') {
-      nodes.push({ ...it, x: cursor, y: (AGENT_H - it.h) / 2 });
-      cursor += it.w + GAP_H;
-    } else {
-      nodes.push({ ...it, x: (AGENT_W - it.w) / 2, y: cursor });
-      cursor += it.h + GAP_V;
-    }
-  }
+  items.forEach((it, i) => {
+    if (orientation === 'horizontal') nodes.push({ ...it, x: cursor, y: (AGENT_H - it.h) / 2 });
+    else nodes.push({ ...it, x: (AGENT_W - it.w) / 2, y: cursor });
+    const next = items[i + 1];
+    const gap = next && it.kind === 'agent' && next.kind === 'agent' ? gaps.agent : gaps.terminal;
+    cursor += (orientation === 'horizontal' ? it.w : it.h) + gap;
+  });
+
   const edges: EdgeGeom[] = [];
   for (let i = 1; i < nodes.length; i++) {
     const a = nodes[i - 1];
@@ -60,12 +68,25 @@ export function computeLayout(agentIds: string[], orientation: Orientation) {
       orientation === 'horizontal'
         ? [a.x + a.w, a.y + a.h / 2, b.x, b.y + b.h / 2]
         : [a.x + a.w / 2, a.y + a.h, b.x + b.w / 2, b.y];
-    edges.push({ key: `${a.key}->${b.key}`, target: i, x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, length: Math.hypot(x2 - x1, y2 - y1) });
+    edges.push({
+      key: `${a.key}->${b.key}`,
+      target: i,
+      between: a.kind === 'agent' && b.kind === 'agent',
+      x1, y1, x2, y2,
+      mx: (x1 + x2) / 2,
+      my: (y1 + y2) / 2,
+      length: Math.hypot(x2 - x1, y2 - y1),
+    });
   }
   const last = nodes[nodes.length - 1];
   const width = orientation === 'horizontal' ? last.x + last.w : AGENT_W;
   const height = orientation === 'horizontal' ? AGENT_H : last.y + last.h;
-  return { nodes, edges, width, height };
+  // Bounds used for fitting include the captions around the terminals.
+  const pad = CAPTION[orientation];
+  const bounds = orientation === 'horizontal'
+    ? { x: -pad.x, y: 0, w: width + pad.x * 2, h: Math.max(height, (AGENT_H + TERMINAL) / 2 + pad.y) }
+    : { x: 0, y: 0, w: Math.max(width, width / 2 + TERMINAL / 2 + pad.x), h: height };
+  return { nodes, edges, width, height, bounds };
 }
 
 export interface View {
@@ -81,9 +102,17 @@ export function clampZoom(k: number) {
   return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, k));
 }
 
-export function fitView(contentW: number, contentH: number, boxW: number, boxH: number, pad = 48): View {
-  const k = clampZoom(Math.min((boxW - pad * 2) / contentW, (boxH - pad * 2) / contentH, 1.05));
-  return { k, x: (boxW - contentW * k) / 2, y: (boxH - contentH * k) / 2 };
+export function fitView(bounds: { x: number; y: number; w: number; h: number }, boxW: number, boxH: number, pad = 48): View {
+  const k = clampZoom(Math.min((boxW - pad * 2) / bounds.w, (boxH - pad * 2) / bounds.h, 1));
+  return { k, x: (boxW - bounds.w * k) / 2 - bounds.x * k, y: (boxH - bounds.h * k) / 2 - bounds.y * k };
+}
+
+/** Pick the orientation that shows the workflow larger; prefer horizontal unless vertical is clearly better. */
+export function bestOrientation(agentIds: string[], boxW: number, boxH: number, pad: number): Orientation {
+  if (!boxW || !boxH) return 'horizontal';
+  const kH = fitView(computeLayout(agentIds, 'horizontal').bounds, boxW, boxH, pad).k;
+  const kV = fitView(computeLayout(agentIds, 'vertical').bounds, boxW, boxH, pad).k;
+  return kV > kH * 1.15 ? 'vertical' : 'horizontal';
 }
 
 export function zoomAround(view: View, factor: number, px: number, py: number): View {

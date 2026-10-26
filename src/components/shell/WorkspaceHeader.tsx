@@ -135,17 +135,22 @@ export function WorkspaceHeader() {
         <label htmlFor="workflow-name" className="sr-only">
           Workflow name
         </label>
-        <input
-          id="workflow-name"
-          value={workflow.name}
-          maxLength={80}
-          disabled={running}
-          onChange={(e) => rename(e.target.value)}
-          aria-invalid={!workflow.name.trim()}
-          className="min-w-0 max-w-[420px] flex-1 truncate rounded-lg border border-transparent bg-transparent px-2 py-1 text-[15px] font-[640] text-ink outline-none transition-colors hover:border-line-strong focus:border-selected focus:bg-well disabled:opacity-100 sm:text-[16px]"
-          style={{ fontStretch: '108%' }}
-          placeholder="Name this workflow"
-        />
+        {/* The hidden copy sizes the input to its text, so the status sits right after the name. */}
+        <span className="inline-grid min-w-0 max-w-[460px] text-[15px] font-[640] sm:text-[16px]" style={{ fontStretch: '108%' }}>
+          <span aria-hidden="true" className="invisible col-start-1 row-start-1 overflow-hidden whitespace-pre border border-transparent px-2 py-1">
+            {workflow.name || 'Name this workflow'}
+          </span>
+          <input
+            id="workflow-name"
+            value={workflow.name}
+            maxLength={80}
+            disabled={running}
+            onChange={(e) => rename(e.target.value)}
+            aria-invalid={!workflow.name.trim()}
+            className="col-start-1 row-start-1 w-full min-w-[6rem] truncate rounded-lg border border-transparent bg-transparent px-2 py-1 text-ink outline-none transition-colors hover:border-line-strong focus:border-selected focus:bg-well disabled:opacity-100"
+            placeholder="Name this workflow"
+          />
+        </span>
         <button type="button" onClick={() => select({ type: 'workflow' })} className="hidden rounded-full sm:inline-flex" aria-label={`Status: ${status.label}. Show workflow details.`}>
           <StatusPill label={status.label} tone={status.tone} live={status.live} />
         </button>

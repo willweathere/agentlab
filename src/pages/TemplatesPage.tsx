@@ -1,4 +1,4 @@
-import { ArrowRight, FolderOpen, Trash2 } from 'lucide-react';
+import { FolderOpen, Trash2 } from 'lucide-react';
 import { INPUT_LABELS, ROLE_SPECS } from '../engine/contracts';
 import { EXAMPLES } from '../engine/examples';
 import { relativeTime } from '../lib/hooks';
@@ -50,7 +50,7 @@ export default function TemplatesPage() {
               <p className="mt-3 text-[12.5px] text-ink-3">Produces: {ex.produces}</p>
               <div className="mt-auto pt-5">
                 <button type="button" className="btn btn-secondary w-full" onClick={() => guarded(() => loadExample(ex.id), { goTo: '/' })}>
-                  Use this example <ArrowRight size={14} aria-hidden="true" />
+                  Use this example
                 </button>
               </div>
             </article>

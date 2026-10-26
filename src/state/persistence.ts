@@ -19,10 +19,11 @@ export interface Settings {
   stepDelayMs: number;
   motion: 'system' | 'reduce';
   drawerOpen: boolean;
-  sidebarCollapsed: boolean;
+  /** null follows the window width: collapsed below 1536px. */
+  sidebarCollapsed: boolean | null;
 }
 
-export const DEFAULT_SETTINGS: Settings = { stepDelayMs: 600, motion: 'system', drawerOpen: true, sidebarCollapsed: false };
+export const DEFAULT_SETTINGS: Settings = { stepDelayMs: 600, motion: 'system', drawerOpen: true, sidebarCollapsed: null };
 
 interface Stored<T> {
   version: 1;
@@ -170,7 +171,7 @@ export function loadSettings(notices: string[]): Settings {
     stepDelayMs: typeof raw.stepDelayMs === 'number' && raw.stepDelayMs >= 0 && raw.stepDelayMs <= 5000 ? raw.stepDelayMs : DEFAULT_SETTINGS.stepDelayMs,
     motion: raw.motion === 'reduce' ? 'reduce' : 'system',
     drawerOpen: typeof raw.drawerOpen === 'boolean' ? raw.drawerOpen : DEFAULT_SETTINGS.drawerOpen,
-    sidebarCollapsed: typeof raw.sidebarCollapsed === 'boolean' ? raw.sidebarCollapsed : DEFAULT_SETTINGS.sidebarCollapsed,
+    sidebarCollapsed: typeof raw.sidebarCollapsed === 'boolean' ? raw.sidebarCollapsed : null,
   };
 }
 

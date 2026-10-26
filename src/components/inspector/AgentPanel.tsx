@@ -152,7 +152,7 @@ export function AgentPanel({ agent, stage, horizontal }: { agent: AgentConfig; s
           <details className="group mt-3 rounded-xl border border-line">
             <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2 text-[12.5px] font-[560] text-ink-2 hover:text-ink">
               <ChevronRight size={14} className="transition-transform group-open:rotate-90" aria-hidden="true" />
-              Directives a {spec.label} understands
+              Directives {/^[AEIOU]/.test(spec.label) ? 'an' : 'a'} {spec.label} understands
             </summary>
             <ul className="space-y-2.5 border-t border-line px-3 py-3">
               {DIRECTIVES[agent.role].map((d) => (

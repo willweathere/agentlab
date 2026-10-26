@@ -9,7 +9,7 @@ import { OverviewPanel, ReportPanel } from './OverviewPanels';
 
 /** Docked on wide screens; a dismissible panel over the canvas on narrower ones. */
 export function Inspector() {
-  const docked = useMediaQuery('(min-width: 1024px)');
+  const docked = useMediaQuery('(min-width: 1280px)');
   const selection = useStore((s) => s.selection);
   const select = useStore((s) => s.select);
   const workflow = useStore((s) => s.workflow);
@@ -44,7 +44,7 @@ export function Inspector() {
 
   if (docked) {
     return (
-      <aside aria-label="Inspector" className="flex min-h-0 w-[360px] flex-none flex-col border-l border-line bg-slab xl:w-[380px]">
+      <aside aria-label="Inspector" className="flex min-h-0 w-[320px] flex-none flex-col border-l border-line bg-slab 2xl:w-[360px]">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5">{content}</div>
       </aside>
     );

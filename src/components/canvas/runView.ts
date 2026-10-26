@@ -41,7 +41,7 @@ export function shortOutput(stage: StageRecord | undefined): string | null {
     }
     case 'review': {
       const v = (out.data as Review).verdict;
-      return v === 'pass' ? 'Review passed' : v === 'warn' ? 'Passed, warnings' : 'Review failed';
+      return v === 'pass' ? 'Passed review' : v === 'warn' ? 'With warnings' : 'Failed review';
     }
     case 'summary': {
       const n = (out.data as Summary).points.length;

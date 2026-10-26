@@ -1,6 +1,7 @@
 import { History, Info, LayoutTemplate, PanelLeftClose, PanelLeftOpen, Plus, Settings2, Workflow, X, type LucideIcon } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
+import { useMediaQuery } from '../../lib/hooks';
 import { useStore } from '../../state/store';
 import { LogoMark } from '../ui/icons';
 import { useGuardedSwitch } from './useGuardedNavigation';
@@ -71,7 +72,9 @@ function Brand({ collapsed }: { collapsed: boolean }) {
 const FOOTNOTE = 'Runs in your browser with deterministic processing. No AI model, no server, no account.';
 
 export function Sidebar() {
-  const collapsed = useStore((s) => s.settings.sidebarCollapsed);
+  const setting = useStore((s) => s.settings.sidebarCollapsed);
+  const wide = useMediaQuery('(min-width: 1536px)');
+  const collapsed = setting ?? !wide;
   const update = useStore((s) => s.updateSettings);
   return (
     <aside

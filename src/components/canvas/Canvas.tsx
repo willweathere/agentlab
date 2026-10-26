@@ -6,7 +6,7 @@ import { AGENT_ROLES } from '../../engine/types';
 import { isRunning, isRunStale, useStore, validationOf } from '../../state/store';
 import { ROLE_ICONS, RoleChip } from '../ui/icons';
 import { Menu } from '../ui/Menu';
-import { computeLayout, fitView, zoomAround, type Orientation, type View } from './layout';
+import { bestOrientation, computeLayout, fitView, zoomAround, type Orientation, type View } from './layout';
 import { AgentCard, InputNode, ReportNode } from './Nodes';
 import { edgeLabel, edgeState, liveRun } from './runView';
 
@@ -38,9 +38,10 @@ export function Canvas() {
   const validation = validationOf(workflow);
 
   const [ref, size] = useSize<HTMLDivElement>();
-  const orientation: Orientation = size.w > 0 && (size.w < 640 || size.w / Math.max(size.h, 1) < 0.95) ? 'vertical' : 'horizontal';
   const ids = workflow.agents.map((a) => a.id);
   const idKey = ids.join('|');
+  const pad = size.w < 640 ? 20 : 48;
+  const orientation: Orientation = useMemo(() => bestOrientation(idKey ? idKey.split('|') : [], size.w, size.h, pad), [idKey, size.w, size.h, pad]);
   const layout = useMemo(() => computeLayout(idKey ? idKey.split('|') : [], orientation), [idKey, orientation]);
 
   const [view, setView] = useState<View>({ x: 0, y: 0, k: 1 });
@@ -51,10 +52,10 @@ export function Canvas() {
     (smooth: boolean) => {
       if (!size.w || !size.h) return;
       setAnimate(smooth);
-      setView(fitView(layout.width, layout.height, size.w, size.h, size.w < 640 ? 24 : 56));
+      setView(fitView(layout.bounds, size.w, size.h, pad));
       touched.current = false;
     },
-    [layout.width, layout.height, size.w, size.h],
+    [layout.bounds, size.w, size.h, pad],
   );
 
   // Refit when the graph changes shape, and on resize until the person pans or zooms.
@@ -227,7 +228,7 @@ export function Canvas() {
               })}
             </svg>
 
-            {layout.edges.map((e) => {
+            {layout.edges.filter((e) => e.between).map((e) => {
               const state = edgeState(run, e.target, n);
               const label = state === 'active' ? 'Handing over' : edgeLabel(workflow, run, e.target - 1);
               const horizontal = orientation === 'horizontal';

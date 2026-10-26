@@ -39,13 +39,17 @@ def main() -> None:
             page.screenshot(path=str(OUT / "workspace-1440.png"))
 
         if want("inspector"):
-            page.click("[data-node]:nth-of-type(3)")
+            page.locator(".agent-card").nth(1).click()
             page.wait_for_timeout(300)
             page.screenshot(path=str(OUT / "inspector-agent-1440.png"))
-            page.keyboard.press("Escape")
+            page.locator("[data-node='input']").click()
+            page.wait_for_timeout(300)
+            page.screenshot(path=str(OUT / "inspector-input-1440.png"))
+            page.locator("[data-node='input']").click()
+            page.mouse.click(700, 250)
 
         if want("running") or want("done"):
-            page.get_by_role("button", name="Run workflow").click()
+            page.locator("header").get_by_role("button", name="Run workflow").click()
             page.wait_for_timeout(900)
             if want("running"):
                 page.screenshot(path=str(OUT / "running-1440.png"))
